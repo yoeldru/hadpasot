@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- נכתב: 2026-11-02 21:03 (שעון ישראל) -->
+<resources>
+    <color name="launcher_bg">#1E5AA8</color>
+    <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#1E5AA8</item>
+        <item name="android:windowBackground">@android:color/white</item>
+    </style>
+</resources>

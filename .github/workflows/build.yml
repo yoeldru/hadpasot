@@ -1,0 +1,40 @@
+# נכתב: 2026-11-02 22:04 (שעון ישראל)
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+
+      - name: Build release APK
+        run: gradle assembleRelease -PversionCode=${{ github.run_number }} --stacktrace
+
+      - name: Rename APK
+        run: cp app/build/outputs/apk/release/app-release.apk hadpasot.apk
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: הדפסות 1.${{ github.run_number }}
+          body: ${{ github.event.head_commit.message }}
+          files: hadpasot.apk
+          make_latest: true

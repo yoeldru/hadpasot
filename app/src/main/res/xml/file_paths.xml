@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- נכתב: 2026-11-02 21:03 (שעון ישראל) -->
+<paths>
+    <cache-path name="cache" path="." />
+    <files-path name="files" path="." />
+</paths>
