@@ -1,4 +1,5 @@
 // נכתב: 2026-11-02 21:18 (שעון ישראל)
+// עודכן: 2026-11-04 17:50 (שעון ישראל) – סימוני קיפול וסיכות בחוברת, כפתורים נבחרים בולטים
 package com.yoeldru.hadpasot
 
 import android.graphics.RectF
@@ -13,7 +14,8 @@ class SrcPage(val doc: Int, val index: Int, val number: Int, val w: Float, val h
 class Cell(val page: SrcPage?, val clip: RectF, val dest: RectF, val rotate: Boolean)
 
 /** צד אחד של גיליון, במידות לוגיות בנקודות (לרוחב אם w>h) */
-class Side(val w: Float, val h: Float, val cells: List<Cell>, val isBack: Boolean, val sheet: Int) {
+/** outer = הצד החיצוני של הגיליון העוטף בחוברת/קונטרס (שם מדפיסים קו קיפול וסימוני סיכות) */
+class Side(val w: Float, val h: Float, val cells: List<Cell>, val isBack: Boolean, val sheet: Int, val outer: Boolean = false) {
     val landscape: Boolean get() = w > h
     val blank: Boolean get() = cells.all { it.page == null }
 }
@@ -227,7 +229,7 @@ object Imposer {
                     front = listOf(cell(outerB, leftCell), cell(outerA, rightCell))
                     back = listOf(cell(innerB, leftCell), cell(innerA, rightCell))
                 }
-                sides.add(Side(sw, sh, front, false, sheet))
+                sides.add(Side(sw, sh, front, false, sheet, outer = s == 0))
                 sides.add(Side(sw, sh, back, true, sheet))
                 sheet++
             }

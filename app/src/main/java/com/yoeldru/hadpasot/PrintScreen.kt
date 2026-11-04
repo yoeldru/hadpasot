@@ -1,4 +1,5 @@
 // נכתב: 2026-11-02 21:50 (שעון ישראל)
+// עודכן: 2026-11-04 17:50 (שעון ישראל) – סימוני קיפול וסיכות בחוברת, כפתורים נבחרים בולטים
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 
 package com.yoeldru.hadpasot
@@ -501,6 +502,12 @@ private fun OptionsSections(vm: MainViewModel, o: PrintOptions, layout: Layout?)
                 "לחוברת עבה: מחלקים לקונטרסים של 5-8 גיליונות, כל קונטרס מקופל בנפרד ואז כורכים יחד.",
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            Toggle("קו קיפול מקווקו", o.foldLine, "על הצד החיצוני של החוברת, במקום הקיפול") { v ->
+                vm.setOptions { it.copy(foldLine = v) }
+            }
+            Toggle("סימוני סיכות", o.stapleMarks, "שני סימונים על קו הקיפול – בשליש העליון ובשליש התחתון") { v ->
+                vm.setOptions { it.copy(stapleMarks = v) }
+            }
             NumberField("רווח בקיפול (מ\"מ)", o.gutterMm, { v -> vm.setOptions { it.copy(gutterMm = v.coerceIn(0f, 40f)) } }, Modifier.fillMaxWidth())
         }
         if (o.booklet || o.duplex != Duplex.NONE) {

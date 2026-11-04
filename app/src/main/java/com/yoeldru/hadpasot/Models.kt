@@ -1,4 +1,5 @@
 // נכתב: 2026-11-02 21:05 (שעון ישראל)
+// עודכן: 2026-11-04 17:50 (שעון ישראל) – סימוני קיפול וסיכות בחוברת, כפתורים נבחרים בולטים
 package com.yoeldru.hadpasot
 
 import org.json.JSONArray
@@ -75,6 +76,8 @@ data class PrintOptions(
     val quality: Quality = Quality.NORMAL,
     val pageNumbers: Boolean = false,
     val watermark: String = "",
+    val foldLine: Boolean = true,
+    val stapleMarks: Boolean = true,
 ) {
     fun toJson(): JSONObject = JSONObject().apply {
         put("copies", copies); put("collate", collate); put("range", range)
@@ -85,6 +88,7 @@ data class PrintOptions(
         put("margin", marginMm.toDouble()); put("booklet", booklet); put("binding", binding.name)
         put("sig", signatureSheets); put("gutter", gutterMm.toDouble()); put("color", color.name)
         put("quality", quality.name); put("pageNumbers", pageNumbers); put("watermark", watermark)
+        put("foldLine", foldLine); put("stapleMarks", stapleMarks)
     }
 
     companion object {
@@ -116,6 +120,8 @@ data class PrintOptions(
                 quality = enumOr(j.optString("quality"), d.quality),
                 pageNumbers = j.optBoolean("pageNumbers", d.pageNumbers),
                 watermark = j.optString("watermark", d.watermark),
+                foldLine = j.optBoolean("foldLine", d.foldLine),
+                stapleMarks = j.optBoolean("stapleMarks", d.stapleMarks),
             )
         }
     }

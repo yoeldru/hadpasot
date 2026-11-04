@@ -1,4 +1,5 @@
 // נכתב: 2026-11-02 21:21 (שעון ישראל)
+// עודכן: 2026-11-04 17:50 (שעון ישראל) – סימוני קיפול וסיכות בחוברת, כפתורים נבחרים בולטים
 package com.yoeldru.hadpasot
 
 import android.graphics.Bitmap
@@ -6,6 +7,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import android.graphics.DashPathEffect
 import android.graphics.Matrix
 import android.graphics.Paint
 import kotlin.math.max
@@ -85,6 +87,25 @@ object SideRenderer {
                 c.restore()
             }
             if (o.borders && side.cells.size > 1) c.drawRect(cell.clip, border)
+        }
+
+        if (o.booklet && side.outer && (o.foldLine || o.stapleMarks)) {
+            val x = side.w / 2f
+            if (o.foldLine) {
+                val dash = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    style = Paint.Style.STROKE; strokeWidth = 0.7f; color = Color.DKGRAY
+                    pathEffect = DashPathEffect(floatArrayOf(5f, 4f), 0f)
+                }
+                c.drawLine(x, 0f, x, side.h, dash)
+            }
+            if (o.stapleMarks) {
+                val mark = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    style = Paint.Style.STROKE; strokeWidth = 1.2f; color = Color.BLACK
+                }
+                for (y in floatArrayOf(side.h / 3f, side.h * 2f / 3f)) {
+                    c.drawLine(x - 11f, y, x + 11f, y, mark)
+                }
+            }
         }
 
         if (o.watermark.isNotBlank()) {

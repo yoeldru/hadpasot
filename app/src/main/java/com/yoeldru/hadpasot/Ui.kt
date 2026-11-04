@@ -1,4 +1,5 @@
 // נכתב: 2026-11-02 21:45 (שעון ישראל)
+// עודכן: 2026-11-04 17:50 (שעון ישראל) – סימוני קיפול וסיכות בחוברת, כפתורים נבחרים בולטים
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.yoeldru.hadpasot
@@ -33,6 +34,9 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -195,6 +199,9 @@ fun UpdateDialog(vm: MainViewModel) {
 
 // ---------- רכיבים משותפים ----------
 
+/** צבע לכל דבר שנבחר: צהוב עם מסגרת שחורה דקה */
+val SelectedYellow = Color(0xFFFFD60A)
+
 @Composable
 fun <T> Choice(label: String, items: List<Pair<T, String>>, selected: T, onSelect: (T) -> Unit) {
     Column(Modifier.padding(vertical = 4.dp)) {
@@ -204,7 +211,23 @@ fun <T> Choice(label: String, items: List<Pair<T, String>>, selected: T, onSelec
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             items.forEach { (v, t) ->
-                FilterChip(selected = v == selected, onClick = { onSelect(v) }, label = { Text(t) })
+                val sel = v == selected
+                FilterChip(
+                    selected = sel,
+                    onClick = { onSelect(v) },
+                    label = { Text(t, fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = SelectedYellow,
+                        selectedLabelColor = Color.Black,
+                        selectedLeadingIconColor = Color.Black,
+                    ),
+                    border = FilterChipDefaults.filterChipBorder(
+                        enabled = true,
+                        selected = sel,
+                        selectedBorderColor = Color.Black,
+                        selectedBorderWidth = 1.dp,
+                    ),
+                )
             }
         }
     }
@@ -220,7 +243,16 @@ fun Toggle(label: String, checked: Boolean, hint: String? = null, onChange: (Boo
             Text(label, style = MaterialTheme.typography.bodyLarge)
             if (hint != null) Text(hint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Switch(checked = checked, onCheckedChange = onChange)
+        Switch(
+            checked = checked,
+            onCheckedChange = onChange,
+            colors = SwitchDefaults.colors(
+                checkedTrackColor = SelectedYellow,
+                checkedThumbColor = Color.Black,
+                checkedBorderColor = Color.Black,
+                checkedIconColor = SelectedYellow,
+            ),
+        )
     }
 }
 
