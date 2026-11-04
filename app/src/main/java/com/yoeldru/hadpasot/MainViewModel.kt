@@ -1,4 +1,5 @@
 // נכתב: 2026-11-02 21:36 (שעון ישראל)
+// עודכן: 2026-11-04 18:55 (שעון ישראל) – עדכון מתוך האפליקציה (הורדה והתקנה בלי דפדפן)
 package com.yoeldru.hadpasot
 
 import android.app.Activity
@@ -644,6 +645,78 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun dismissUpdate() {
         update?.let { store.saveSeenUpdate(it.version) }
         showUpdateDialog = false
+    }
+
+    /** מוריד את ה-APK החדש בתוך האפליקציה ופותח את מסך ההתקנה של אנדרואיד */
+    fun installUpdate(activity: Activity) {
+        val u = update ?: return
+        showUpdateDialog = false
+        if (android.os.Build.VERSION.SDK_INT >= 26 && !activity.packageManager.canRequestPackageInstalls()) {
+            message = Msg(
+                "צריך אישור חד-פעמי",
+                "במסך שייפתח הפעל \"אפשר ממקור זה\", חזור לאפליקציה ולחץ שוב \"עדכן\".",
+                ok = true,
+            )
+            runCatching {
+                activity.startActivity(
+                    Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + activity.packageName))
+                )
+            }
+            return
+        }
+        printJob = viewModelScope.launch {
+            busy = "מוריד עדכון…"; progress = 0f
+            try {
+                val dir = File(ctx.cacheDir, "update").apply { mkdirs() }
+                val f = File(dir, "hadpasot-${u.version}.apk")
+                withContext(Dispatchers.IO) {
+                    var conn = java.net.URL(u.url).openConnection() as java.net.HttpURLConnection
+                    var hops = 0
+                    while (true) {
+                        conn.instanceFollowRedirects = false
+                        conn.connectTimeout = 15000; conn.readTimeout = 30000
+                        val code = conn.responseCode
+                        if (code in 300..399 && hops < 6) {
+                            val loc = conn.getHeaderField("Location") ?: break
+                            conn.disconnect()
+                            conn = java.net.URL(java.net.URL(conn.url, loc).toString()).openConnection() as java.net.HttpURLConnection
+                            hops++
+                            continue
+                        }
+                        if (code != 200) throw IOException("ההורדה נכשלה (HTTP $code)")
+                        break
+                    }
+                    val total = conn.contentLengthLong
+                    conn.inputStream.use { ins ->
+                        FileOutputStream(f).use { out ->
+                            val buf = ByteArray(65536)
+                            var got = 0L
+                            while (true) {
+                                val r = ins.read(buf)
+                                if (r < 0) break
+                                out.write(buf, 0, r)
+                                got += r
+                                if (total > 0) progress = got.toFloat() / total
+                            }
+                        }
+                    }
+                    conn.disconnect()
+                }
+                store.saveSeenUpdate(u.version)
+                val uri = FileProvider.getUriForFile(ctx, ctx.packageName + ".files", f)
+                val i = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(uri, "application/vnd.android.package-archive")
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                activity.startActivity(i)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                fail(e)
+            } finally {
+                busy = null; progress = null
+            }
+        }
     }
 
     fun openUrl(activity: Activity, url: String) {

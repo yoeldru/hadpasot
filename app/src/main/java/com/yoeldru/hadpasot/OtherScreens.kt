@@ -160,7 +160,7 @@ fun SettingsScreen(vm: MainViewModel) {
                     Spacer(Modifier.width(8.dp))
                     Text("יש גרסה חדשה: 1.${u.version}")
                 }
-                OutlinedButton(onClick = { activity?.let { vm.openUrl(it, u.url) } }) { Text("הורד והתקן עדכון") }
+                OutlinedButton(onClick = { activity?.let { vm.installUpdate(it) } }) { Text("עדכן עכשיו") }
             } else {
                 TextButton(onClick = { vm.checkUpdate() }) { Text("בדוק עדכונים") }
             }

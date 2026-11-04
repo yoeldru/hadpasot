@@ -191,7 +191,7 @@ fun UpdateDialog(vm: MainViewModel) {
         title = { Text("יש גרסה חדשה (1.${u.version})") },
         text = { Text(if (u.notes.isNotBlank()) u.notes.take(600) else "לחץ \"עדכן\" כדי להוריד ולהתקין את הגרסה החדשה.") },
         confirmButton = {
-            TextButton(onClick = { activity?.let { vm.openUrl(it, u.url) }; vm.dismissUpdate() }) { Text("עדכן") }
+            TextButton(onClick = { activity?.let { vm.installUpdate(it) } }) { Text("עדכן עכשיו") }
         },
         dismissButton = { TextButton(onClick = { vm.dismissUpdate() }) { Text("אחר כך") } },
     )
