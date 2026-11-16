@@ -120,6 +120,7 @@ fun App(vm: MainViewModel) {
         BusyDialog(vm)
         MessageDialog(vm)
         FlipDialog(vm)
+        ShareDialog(vm)
         UpdateDialog(vm)
     }
 }
@@ -156,6 +157,19 @@ fun MessageDialog(vm: MainViewModel) {
         title = { Text(m.title) },
         text = { if (m.text.isNotBlank()) Text(m.text) },
         confirmButton = { TextButton(onClick = { vm.message = null }) { Text("אישור") } },
+    )
+}
+
+@Composable
+fun ShareDialog(vm: MainViewModel) {
+    val uris = vm.pendingShare ?: return
+    val cur = vm.job?.files?.size ?: 0
+    AlertDialog(
+        onDismissRequest = { vm.resolveShare(append = true) },
+        title = { Text(if (uris.size == 1) "קובץ חדש התקבל" else "${uris.size} קבצים חדשים התקבלו") },
+        text = { Text("יש כבר $cur קבצים פתוחים להדפסה. להוסיף אליהם את מה ששיתפת, או להתחיל עבודה חדשה?") },
+        confirmButton = { TextButton(onClick = { vm.resolveShare(append = true) }) { Text("הוסף לקבצים") } },
+        dismissButton = { TextButton(onClick = { vm.resolveShare(append = false) }) { Text("עבודה חדשה") } },
     )
 }
 

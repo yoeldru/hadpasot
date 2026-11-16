@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
         // מסמנים שהשיתוף טופל, כדי שסיבוב מסך לא יטען אותו שוב
         setIntent(Intent(Intent.ACTION_MAIN))
         if (uris.isNotEmpty()) {
-            vm.openUris(uris)
+            vm.onShared(uris)
         } else if (i.action == Intent.ACTION_SEND) {
             val text = i.getStringExtra(Intent.EXTRA_TEXT)
             if (!text.isNullOrBlank()) vm.openText(text)

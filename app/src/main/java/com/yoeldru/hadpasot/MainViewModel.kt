@@ -1,4 +1,5 @@
 // נכתב: 2026-11-02 21:36 (שעון ישראל)
+// עודכן: 2026-11-16 19:25 (שעון ישראל) – שיתוף קובץ כשיש עבודה פתוחה: הוספה או עבודה חדשה
 // עודכן: 2026-11-16 19:10 (שעון ישראל) – תיקון: קובץ ששותף מוואטסאפ נמחק בזמן הטעינה
 // עודכן: 2026-11-04 18:55 (שעון ישראל) – עדכון מתוך האפליקציה (הורדה והתקנה בלי דפדפן)
 package com.yoeldru.hadpasot
@@ -72,6 +73,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     var flip by mutableStateOf<FlipRequest?>(null)
     var update by mutableStateOf<Updater.Info?>(null)
     var showUpdateDialog by mutableStateOf(false)
+    /** קבצים ששותפו בזמן שיש כבר עבודה פתוחה – ממתינים לבחירה: להוסיף או להתחיל מחדש */
+    var pendingShare by mutableStateOf<List<Uri>?>(null)
 
     val caps = mutableStateMapOf<String, PrinterCaps>()
     val capsError = mutableStateMapOf<String, String>()
@@ -149,11 +152,24 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** קבצים שהגיעו בשיתוף מאפליקציה אחרת */
+    fun onShared(uris: List<Uri>) {
+        if (uris.isEmpty()) return
+        if (job == null) openUris(uris) else pendingShare = uris
+    }
+
+    fun resolveShare(append: Boolean) {
+        val u = pendingShare ?: return
+        pendingShare = null
+        openUris(u, append = append)
+        tab = 0
+    }
+
     fun openText(text: String) {
         viewModelScope.launch {
             val f = File(ctx.cacheDir, "shared-text.txt")
             withContext(Dispatchers.IO) { f.writeText(text) }
-            openUris(listOf(Uri.fromFile(f)))
+            onShared(listOf(Uri.fromFile(f)))
         }
     }
 
