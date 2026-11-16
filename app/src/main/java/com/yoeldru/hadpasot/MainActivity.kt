@@ -1,4 +1,5 @@
 // נכתב: 2026-11-02 21:42 (שעון ישראל)
+// עודכן: 2026-11-16 19:10 (שעון ישראל) – תיקון: קובץ ששותף מוואטסאפ נמחק בזמן הטעינה
 package com.yoeldru.hadpasot
 
 import android.content.Intent
@@ -37,12 +38,19 @@ class MainActivity : ComponentActivity() {
 
     private fun handleIntent(i: Intent?) {
         if (i == null) return
-        val uris: List<Uri> = when (i.action) {
+        var uris: List<Uri> = when (i.action) {
             Intent.ACTION_SEND -> listOfNotNull(IntentCompat.getParcelableExtra(i, Intent.EXTRA_STREAM, Uri::class.java))
             Intent.ACTION_SEND_MULTIPLE -> IntentCompat.getParcelableArrayListExtra(i, Intent.EXTRA_STREAM, Uri::class.java) ?: emptyList()
             Intent.ACTION_VIEW -> listOfNotNull(i.data)
             else -> emptyList()
         }
+        // יש אפליקציות ששולחות את הקבצים רק ב-ClipData
+        if (uris.isEmpty() && (i.action == Intent.ACTION_SEND || i.action == Intent.ACTION_SEND_MULTIPLE)) {
+            val clip = i.clipData
+            if (clip != null) uris = (0 until clip.itemCount).mapNotNull { clip.getItemAt(it).uri }
+        }
+        // מסמנים שהשיתוף טופל, כדי שסיבוב מסך לא יטען אותו שוב
+        setIntent(Intent(Intent.ACTION_MAIN))
         if (uris.isNotEmpty()) {
             vm.openUris(uris)
         } else if (i.action == Intent.ACTION_SEND) {

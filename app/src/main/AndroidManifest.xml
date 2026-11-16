@@ -32,6 +32,8 @@
                 <action android:name="android.intent.action.SEND" />
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <!-- עודכן: 2026-11-16 – קבלת כל סוג קובץ בשיתוף (וואטסאפ שולח לפעמים סוג כללי) -->
+                <data android:mimeType="*/*" />
                 <data android:mimeType="application/pdf" />
                 <data android:mimeType="image/*" />
                 <data android:mimeType="text/plain" />

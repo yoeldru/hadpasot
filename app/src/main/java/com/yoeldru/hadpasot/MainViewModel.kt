@@ -1,4 +1,5 @@
 // נכתב: 2026-11-02 21:36 (שעון ישראל)
+// עודכן: 2026-11-16 19:10 (שעון ישראל) – תיקון: קובץ ששותף מוואטסאפ נמחק בזמן הטעינה
 // עודכן: 2026-11-04 18:55 (שעון ישראל) – עדכון מתוך האפליקציה (הורדה והתקנה בלי דפדפן)
 package com.yoeldru.hadpasot
 
@@ -222,9 +223,13 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun cleanupOrphans() {
         viewModelScope.launch(Dispatchers.IO) {
-            val keep = history.map { it.dir }.toSet()
-            File(ctx.filesDir, "jobs").listFiles()?.forEach { if (it.absolutePath !in keep) it.deleteRecursively() }
-            ctx.cacheDir.listFiles()?.forEach { if (it.isFile) it.delete() }
+            // מוחקים רק קבצים ישנים (מעל 6 שעות), כדי לא למחוק קובץ ששותף עכשיו ונטען ברגע זה
+            val old = System.currentTimeMillis() - 6 * 3600_000L
+            val keep = history.map { it.dir }.toSet() + (job?.dir?.absolutePath ?: "")
+            File(ctx.filesDir, "jobs").listFiles()?.forEach {
+                if (it.absolutePath !in keep && it.lastModified() < old) it.deleteRecursively()
+            }
+            ctx.cacheDir.listFiles()?.forEach { if (it.isFile && it.lastModified() < old) it.delete() }
         }
     }
 
