@@ -1,4 +1,5 @@
 // נכתב: 2026-11-02 21:36 (שעון ישראל)
+// עודכן: 2026-11-22 11:50 (שעון ישראל) – ברירות מחדל להדפסה בהגדרות
 // עודכן: 2026-11-16 19:25 (שעון ישראל) – שיתוף קובץ כשיש עבודה פתוחה: הוספה או עבודה חדשה
 // עודכן: 2026-11-16 19:10 (שעון ישראל) – תיקון: קובץ ששותף מוואטסאפ נמחק בזמן הטעינה
 // עודכן: 2026-11-04 18:55 (שעון ישראל) – עדכון מתוך האפליקציה (הורדה והתקנה בלי דפדפן)
@@ -269,13 +270,28 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         presets = list; store.savePresets(list)
     }
 
-    fun saveDefaultOptions() {
-        store.saveDefaultOptions(options.copy(range = ""))
-        message = Msg("נשמר", "האפשרויות הנוכחיות יהיו ברירת המחדל לעבודות חדשות")
+    /** ברירות המחדל לכל עבודה חדשה (נשמרות בטלפון) */
+    var defaults by mutableStateOf(store.defaultOptions()); private set
+
+    fun setDefaults(f: (PrintOptions) -> PrintOptions) {
+        defaults = f(defaults).copy(range = "")
+        store.saveDefaultOptions(defaults)
     }
 
+    fun saveDefaultOptions() {
+        defaults = options.copy(range = "")
+        store.saveDefaultOptions(defaults)
+        message = Msg("נשמר", "ההגדרות הנוכחיות יהיו ברירת המחדל לכל הדפסה חדשה.\nאפשר לשנות אותן בכל עת בהגדרות ← ברירות מחדל להדפסה.")
+    }
+
+    fun resetDefaults() {
+        defaults = PrintOptions()
+        store.saveDefaultOptions(defaults)
+    }
+
+    /** "איפוס" מחזיר לברירות המחדל שלך */
     fun resetOptions() {
-        options = PrintOptions()
+        options = defaults.copy(range = "")
     }
 
     // ---------- תצוגה מקדימה ----------

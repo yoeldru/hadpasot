@@ -1,4 +1,5 @@
 // נכתב: 2026-11-02 21:50 (שעון ישראל)
+// עודכן: 2026-11-22 11:50 (שעון ישראל) – ברירות מחדל להדפסה בהגדרות
 // עודכן: 2026-11-04 17:50 (שעון ישראל) – סימוני קיפול וסיכות בחוברת, כפתורים נבחרים בולטים
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 
@@ -49,6 +50,7 @@ import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -176,6 +178,9 @@ private fun JobView(vm: MainViewModel, openFiles: () -> Unit, openImages: () -> 
             if (layout != null) PreviewCard(vm, layout)
             TargetCard(vm)
             PresetsRow(vm)
+            TextButton(onClick = { vm.saveDefaultOptions() }) {
+                Icon(Icons.Filled.Star, null); Spacer(Modifier.width(6.dp)); Text("קבע את ההגדרות האלה כברירת מחדל")
+            }
             OptionsSections(vm, o, layout)
             Spacer(Modifier.height(12.dp))
         }
@@ -530,7 +535,7 @@ private fun OptionsSections(vm: MainViewModel, o: PrintOptions, layout: Layout?)
         )
         Row {
             TextButton(onClick = { vm.saveDefaultOptions() }) { Text("קבע כברירת מחדל") }
-            TextButton(onClick = { vm.resetOptions() }) { Text("איפוס") }
+            TextButton(onClick = { vm.resetOptions() }) { Text("חזרה לברירת המחדל") }
         }
     }
 }

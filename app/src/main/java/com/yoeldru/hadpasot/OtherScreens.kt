@@ -1,4 +1,5 @@
 // נכתב: 2026-11-02 22:01 (שעון ישראל)
+// עודכן: 2026-11-22 11:50 (שעון ישראל) – ברירות מחדל להדפסה בהגדרות
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.yoeldru.hadpasot
@@ -18,6 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ErrorOutline
@@ -102,6 +104,8 @@ fun SettingsScreen(vm: MainViewModel) {
     val activity = LocalContext.current as? Activity
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(12.dp)) {
 
+        DefaultsSection(vm)
+
         Section("שירות המרה – וורד, אקסל, פאוורפוינט", Icons.Filled.CloudSync, open = s.convertUrl.isBlank()) {
             Text(
                 "קבצי אופיס מומרים ל-PDF דרך Google Drive שלך, בעזרת סקריפט קטן ב-Apps Script (חד-פעמי):\n" +
@@ -173,5 +177,35 @@ fun SettingsScreen(vm: MainViewModel) {
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+    }
+}
+
+@Composable
+private fun DefaultsSection(vm: MainViewModel) {
+    val d = vm.defaults
+    Section("ברירות מחדל להדפסה", Icons.Filled.Tune, open = true) {
+        Text(
+            "כך תיפתח כל הדפסה חדשה (גם קובץ ששותף מוואטסאפ). אפשר תמיד לשנות לפני שמדפיסים.",
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Choice("דו-צדדי", Duplex.entries.map { it to it.label }, d.duplex) { v -> vm.setDefaults { it.copy(duplex = v) } }
+        Choice("צבע", ColorMode.entries.map { it to it.label }, d.color) { v -> vm.setDefaults { it.copy(color = v) } }
+        Choice("גודל נייר", PaperSize.entries.map { it to it.label }, d.paper) { v -> vm.setDefaults { it.copy(paper = v) } }
+        Choice("כיוון", Orientation.entries.map { it to it.label }, d.orientation) { v -> vm.setDefaults { it.copy(orientation = v) } }
+        Choice("עמודים בכל צד של דף", listOf(1, 2, 4, 6, 9, 16).map { it to it.toString() }, d.pagesPerSheet) { v ->
+            vm.setDefaults { it.copy(pagesPerSheet = v) }
+        }
+        Choice("איכות", Quality.entries.map { it to it.label }, d.quality) { v -> vm.setDefaults { it.copy(quality = v) } }
+        Choice("מי הופך את הדף בדו-צדדי", DuplexMethod.entries.map { it to it.label }, d.duplexMethod) { v ->
+            vm.setDefaults { it.copy(duplexMethod = v) }
+        }
+        Stepper("עותקים", d.copies, 1..99) { v -> vm.setDefaults { it.copy(copies = v) } }
+        Toggle("הדפסה כחוברת", d.booklet) { v -> vm.setDefaults { it.copy(booklet = v) } }
+        Choice("כריכת חוברת", Binding.entries.map { it to it.label }, d.binding) { v -> vm.setDefaults { it.copy(binding = v) } }
+        Toggle("קו קיפול וסימוני סיכות בחוברת", d.foldLine && d.stapleMarks) { v ->
+            vm.setDefaults { it.copy(foldLine = v, stapleMarks = v) }
+        }
+        Toggle("מספרי עמודים", d.pageNumbers) { v -> vm.setDefaults { it.copy(pageNumbers = v) } }
+        TextButton(onClick = { vm.resetDefaults() }) { Text("החזר להגדרות היצרן") }
     }
 }
